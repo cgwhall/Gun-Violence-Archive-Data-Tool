@@ -1,0 +1,132 @@
+API Endpoint: https://api.gunviolencearchive.org/api/incidents.json
+Method: Get
+Auth: Oauth 1.0 (must include full auth as headers with every request)
+
+Consumer Key: pCSMysBUwKVnHgmyrTXHCx52eomMxsaD
+Consumer Secret: mkXg9wSuWsVXpo96kccsJiN9vMByYcot
+Access Token: CXYEuJpu6eCYHNuzKYCCDsTWbiFia5q9
+Token Secret: uG6pxUsRoJo5BGqSkQJU2KmH76dRgcUL
+
+
+Param Names
+page (defaults to 0)(Optional)
+pagesize (defaults to 50, has max of 500)(Optional)
+filters (array format with filters data)(Required)
+
+
+Current Filters Available:
+
+  NumberOfVictims
+  ParticipantsStatus
+  IncidentDate
+  Updated
+  NumberOfParticipantsByStatus
+  NumberOfPerpetratorsByStatus
+  NumberOfVictimsByStatus
+
+
+Methods by Filter:
+
+  NumberOfVictims
+    is greater than
+    is less than
+    is equal to
+    is not equal to
+
+  ParticipantsStatus
+    contains
+    does not contain
+
+  IncidentDate
+    is in
+    is not in
+    is in the last
+    is not in the last
+    is current year
+    is year
+    is not year
+
+  Updated
+    is in
+    is not in
+
+  NumberOfParticipantsByStatus
+    is greater than
+    is less than
+    is equal to
+    is not equal to
+
+  NumberOfPerpetratorsByStatus
+    is greater than
+    is less than
+    is equal to
+    is not equal to
+
+  NumberOfVictimsByStatus
+    is greater than
+    is less than
+    is equal to
+    is not equal to
+
+
+
+Filter Field formatting:
+
+  is greater than
+    [field][value] = (int)
+  is less than
+    [field][value] = (int)
+  is equal to
+    [field][value] = (int)
+  is not equal to
+    [field][value] = (int)
+  contains
+    [field][value] = (string)
+  does not contain
+    [field][value] = (string)
+  is in
+    [field][date-from] = (string) Example Format: 5/1/2023
+    [field][date-to] = (string) Example Format: 5/1/2023
+  is not in
+    [field][date-from] = (string) Example Format: 5/1/2023
+    [field][date-to] = (string) Example Format: 5/1/2023
+  is in the last
+    [field][time] = (int)
+    [field][unit] = (string) (Days = D, Months = M, Years = Y)
+  is not in the last
+    [field][time] = (int)
+    [field][unit] = (string) (Days = D, Months = M, Years = Y)
+  is current year
+    No value needed
+  is year
+    [field][date-year] = (int) (Must be a year from 2014-2023)
+  is not year
+    [field][date-year] = (int) (Must be a year from 2014-2023)
+
+
+
+Filter Field formatting for Number of * by status filters:
+
+  is greater than
+    [field][count][value] = (int)
+    [field][status] = (string)
+  is less than
+    [field][count][value] = (int)
+    [field][status] = (string)
+  is equal to
+    [field][count][value] = (int)
+    [field][status] = (string)
+  is not equal to
+    [field][count][value] = (int)
+    [field][status] = (string)
+
+Possible Participant status values (use the int value as param value)
+Killed - 98
+Injured - 99
+Unharmed - 100
+Arrested - 101
+
+
+Example query that is showing incidents with more than 2 victims killed and the incident date was in 2022
+
+    https://api.gunviolencearchive.org/api/incidents.json?page=0&pagesize=100&filters[NumberOfVictimsByStatus][method]=is greater than&filters[NumberOfVictimsByStatus][field][count][value]=2&filters[NumberOfVictimsByStatus][field][status]=98&filters[IncidentDate][method]=is year&filters[IncidentDate][field][date-year]=2022

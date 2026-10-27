@@ -13,15 +13,9 @@ By default, datasets relate observations with data from the American Community S
 
 This project is not affiliated with the Gun Violence Archives, and the repository requires a private API key and access codes to run locally (email mark@gvadata.org to request). For most recently updated end-product data files, download directly from:
 
-# Table of Contents
-- main
-- gva_gen
-  - data components
-  - gva_files
-
 # Quickstart
-
-
+Use __main__.py to under gva_gen subfolder to make data call.
+**You will need to enter API and access token information before running**
 
 # Data Dictionary
 

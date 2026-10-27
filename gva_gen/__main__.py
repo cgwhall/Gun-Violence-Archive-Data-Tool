@@ -29,12 +29,15 @@ client_secret=''
 access_token = ''
 token_secret = ''
 headers = {'User-Agent':''}
+headeroauth = OAuth1(client_key, client_secret,
+                access_token, token_secret,
+                signature_type='auth_header')
 
 # Page range to check GVA
 page_range = [*range(200,201)]
 year = 2026
 
-def main(group_lst, agg_dict, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path=''):
+def main(headers, headeroauth, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path='~/Desktop/test.csv'):
 
     ### Group_lst and Vars of Interest
     group_lst = ['city_state','city', 'state', 'year', 'pop']
@@ -106,7 +109,7 @@ def main(group_lst, agg_dict, final_year = year, agg = 'city', homs='true', time
     standard_df.to_csv(final_save_path, index=False)
 
 # Homicides Only, Annual, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='annual', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom_annual.csv')
+main(final_year = year, agg = 'city', homs= 'true', time='annual', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom_annual.csv')
 
 # Homicides Only, Monthly, 300 City Filter
 main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='month', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom_month.csv')

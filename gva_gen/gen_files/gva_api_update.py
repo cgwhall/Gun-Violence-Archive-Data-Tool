@@ -7,12 +7,12 @@ import requests
 from requests_oauthlib import OAuth1
 from pathlib import Path
 
-def call_gva_data(page_range):
+def call_gva_data(current_dir, headers, headeroauth, page_range):
     print(page_range)
     print('starting call')
 
     # Call old Dataframe and make list
-    file_path = Path(f'{sys.path[0]}/data_components/gva_all.csv')
+    file_path = Path(f'{str(current_dir)}/gva_gen/data_components/gva_all.csv')
     if file_path.is_file():
         gva_ex = pd.read_csv(file_path)
         print("Loading existing gva_all.csv")
@@ -24,31 +24,24 @@ def call_gva_data(page_range):
 
     # Func to convert gva json to df type
     def gva_df_convert(json_df):
+        json_df = json_df.reset_index(drop=True)
         wdf = pd.DataFrame(columns = list(json_df['results'][0].keys()))
         for index, row in json_df.iterrows():
             add_row = list(json_df['results'][index].values())
             wdf.loc[len(wdf)] = add_row
         return wdf
-
-    # API ACCESS
-    client_key = client_key
-    client_secret= client_secret
-    access_token = access_token
-    token_secret = token_secret
-    headers = headers
-    headeroauth = OAuth1(client_key, client_secret,
-                        access_token, token_secret,
-                        signature_type='auth_header')
     
     complete_df = pd.DataFrame()
     for page in page_range:
 
         print('requesting page: '+str(page))
-        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500'
+        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
         r = requests.get(url=protected_url, headers=headers, auth=headeroauth)
         time.sleep(4)
         json_data = r.json()
         df = pd.DataFrame(json_data)
+        print(df.head())
+        print('here')
         fixed_df = gva_df_convert(df)
         print('merging page '+str(page)+' with all data')
         complete_df = pd.concat([complete_df, fixed_df], ignore_index=True)
@@ -73,3 +66,4 @@ def call_gva_data(page_range):
 
     print(f'saving to: {str(file_path)}')
     complete_df.to_csv(f'{str(file_path)}', index=False)
+    return complete_df

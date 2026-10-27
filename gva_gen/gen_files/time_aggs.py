@@ -1,7 +1,7 @@
 import pandas as pd
 
 def annual_agg(df, group_lst, var_dict):
-    df['incident_date'] = pd.to_datetime(df['incident_date'])
+    df['incident_date'] = pd.to_datetime(df['incident_date'], format='mixed')
     df['year'] = df['incident_date'].dt.year
     df['city_state'] = df['city']+', '+ df['state']
     for key in var_dict.keys():

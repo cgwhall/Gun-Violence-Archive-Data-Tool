@@ -8,17 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-current_dir = Path('gva_df_gen_300_cities.py').resolve().parent
-
-
-from gen_files.create_city_list import city_list
-
-# city_list
-
-# Load All GVA data and select columns
-gva_df = pd.read_csv(f'{str(current_dir.parent)}/gva_gen/data_components/gva_all.csv')
-
-def cities_300_gen(df, city_list):
+def cities_300_gen(df, city_list, current_dir):
 
     # GVA has some weird or inconsistent name coventions; clean city names with mapping dictionary 
     city_mapping = {'Bronx': 'New York', 'Brooklyn': 'New York', 'Corona (Queens)': 'New York', 'Corona (queens)': 'New York', 'Queens':'New York', 'Arverne': 'New York', 'Staten Island':'New York', 'New York (Manhattan)': 'New York', 'East Los Angeles': 'Los Angeles', 'Spokane (Spokane Valley)': 'Spokane Valley', 'Mcallen': 'McAllen', 'Mcallen (McAllen)': 'McAllen', 'Salt Lake City (West Valley City)': 'West Valley City', 'Littleton (Lakewood)': 'Lakewood', 'Atlanta (Sandy Springs)': 'Sandy Springs', 'Hollywood (Miramar)': 'Miramar', 'Winston Salem (Winston-salem)': 'Winston-Salem', 'Winston Salem': 'Winston-Salem'}
@@ -51,8 +41,6 @@ def cities_300_gen(df, city_list):
 
     cities_300_df = df.rename(columns={'city_or_county':'city','#_victims_killed':'gun_deaths', '#_victims_injured':'injured', '#_subjects-suspects_killed':'sus_killed','#_subjects-suspects_injured':'sus_inj', '#_subjects-suspects_arrested':'sus_arrested'})
     
-    cities_300_df.to_csv(f'{current_dir}/data_components/gva_300_cities.csv', index=False)
+    cities_300_df.to_csv(f'{current_dir}/gva_gen/data_components/gva_300_cities.csv', index=False)
     
     return cities_300_df
-
-gva300 = cities_300_gen(gva_df, city_list)

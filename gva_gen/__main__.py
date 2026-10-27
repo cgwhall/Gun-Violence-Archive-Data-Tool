@@ -4,46 +4,55 @@ import os
 import sys
 from pathlib import Path
 import numpy as np
-
-# 1. Get the directory where the current script is located
-current_dir = Path('__main__.py').resolve().parent
+from bs4 import BeautifulSoup as bs
+import time
+import requests
+from requests_oauthlib import OAuth1
 
 ### add system path to get other library directories
-sys.path[0] = os.path.join(os.path.abspath(''),'gva_gen/')
+current_dir = Path('__main__.py').resolve().parent
+sys.path[0] = os.path.join(os.path.abspath(''))
 
-from create_city_list import city_list
-from gva_api_update import call_gva_data
-from gva_df_gen_300_cities import cities_300_gen
-from filter_incidents import homs_only
-from merge_funcs import *
-from incident_handling import *
-from time_aggs import *
-from rolling_calc import rolling
+from gen_files.create_city_list import city_list
+from gen_files.gva_api_update import call_gva_data
+from gen_files.gva_df_gen_300_cities import cities_300_gen
+from gen_files.filter_incidents import homs_only
+from gen_files.merge_funcs import *
+from gen_files.incident_handling import *
+from gen_files.time_aggs import *
+from gen_files.rolling_calc import rolling
 
-### Group_lst and Vars of Interest
-group_lst = ['city_state','city', 'state', 'year', 'pop']
-agg_dict = {'victims_killed': 'sum',
-            'killed':'sum',
-            'injured':'sum',
-            'victims_injured': 'sum',
-            'assault_weapon': 'sum',
-            'ghost_gun':'sum',
-            'domestic_violence': 'sum',
-            'mass_shooting': 'sum',
-            'hate_crime':'sum',
-            'vic_child_killed':'sum',
-            'vic_adult_killed':'sum',
-            'vic_teen_killed':'sum',
-            'vic_child_injured':'sum',
-            'vic_adult_injured':'sum',
-            'vic_teen_injured':'sum'}
+### NEED PRIVATE API KEY AND ACCESS TOKEN FROM GVA TO RUN THIS SCRIPT ###
 
-# Save path and page range to check GVA
-save_path = '/Users/chall/Desktop/GitHub/CAP/Data/gva_all.csv'
-page_range = [*range(100,103)]
-year = 2025
+client_key = ''
+client_secret=''
+access_token = ''
+token_secret = ''
+headers = {'User-Agent':''}
+
+# Page range to check GVA
+page_range = [*range(200,201)]
+year = 2026
 
 def main(group_lst, agg_dict, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path=''):
+
+    ### Group_lst and Vars of Interest
+    group_lst = ['city_state','city', 'state', 'year', 'pop']
+    agg_dict = {'victims_killed': 'sum',
+                'killed':'sum',
+                'injured':'sum',
+                'victims_injured': 'sum',
+                'assault_weapon': 'sum',
+                'ghost_gun':'sum',
+                'domestic_violence': 'sum',
+                'mass_shooting': 'sum',
+                'hate_crime':'sum',
+                'vic_child_killed':'sum',
+                'vic_adult_killed':'sum',
+                'vic_teen_killed':'sum',
+                'vic_child_injured':'sum',
+                'vic_adult_injured':'sum',
+                'vic_teen_injured':'sum'}
 
     curr_df = call_gva_data(page_range=page_range)
     print('all called')
@@ -54,17 +63,6 @@ def main(group_lst, agg_dict, final_year = year, agg = 'city', homs='true', time
          print('filtered to 300 cities')
     else:
         pass
-
-    ############################################################
-    ########## Toggled off adding grades and votign data ##########
-    ############################################################
-
-    # giff_df = pd.read_csv('/Users/chall/Desktop/GitHub/CAP/Data/gva_gen/data_components/giffords_score.csv')
-    # voting_df = pd.read_csv('/Users/chall/Desktop/GitHub/CAP/Data/gva_gen/data_components/voting_data.csv')
-    # states_complete = giffords_w_voting(giff_df, voting_df)
-    # print('states_complete')
-    # city_state_merged = gva_w_states(curr_df, states_complete)
-    # print('city_state_merged')
 
     if agg == 'state':
         standard_df = merge_state_pop(curr_df)

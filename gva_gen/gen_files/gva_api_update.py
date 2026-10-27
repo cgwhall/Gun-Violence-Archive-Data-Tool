@@ -7,9 +7,6 @@ import requests
 from requests_oauthlib import OAuth1
 from pathlib import Path
 
-
-# page_range = [*range(504,510)]
-
 def call_gva_data(page_range):
     print(page_range)
     print('starting call')
@@ -34,11 +31,11 @@ def call_gva_data(page_range):
         return wdf
 
     # API ACCESS
-    client_key = 'pCSMysBUwKVnHgmyrTXHCx52eomMxsaD'
-    client_secret='mkXg9wSuWsVXpo96kccsJiN9vMByYcot'
-    access_token = 'CXYEuJpu6eCYHNuzKYCCDsTWbiFia5q9'
-    token_secret = 'uG6pxUsRoJo5BGqSkQJU2KmH76dRgcUL'
-    headers = {'User-Agent':'Center for American Progress'}
+    client_key = client_key
+    client_secret= client_secret
+    access_token = access_token
+    token_secret = token_secret
+    headers = headers
     headeroauth = OAuth1(client_key, client_secret,
                         access_token, token_secret,
                         signature_type='auth_header')
@@ -47,7 +44,7 @@ def call_gva_data(page_range):
     for page in page_range:
 
         print('requesting page: '+str(page))
-        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]=2022'
+        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500'
         r = requests.get(url=protected_url, headers=headers, auth=headeroauth)
         time.sleep(4)
         json_data = r.json()
@@ -75,5 +72,4 @@ def call_gva_data(page_range):
         pass
 
     print(f'saving to: {str(file_path)}')
-    complete_df.to_csv('/Users/chandlerhall/Desktop/Github/CAP/Gun Violence Archive Data Tool/gva_gen/data_components/gva_all.csv', index=False)
-    return complete_df
+    complete_df.to_csv(f'{str(file_path)}', index=False)

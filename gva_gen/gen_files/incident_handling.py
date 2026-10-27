@@ -116,39 +116,3 @@ def partic_dummy(df):
 
 
 
-
-
-
-########################################## 
-########################################## 
-########################################## 
-### DEPRECATED
-### Participant Handling 
-# def partic_to_lst(df):
-#     def extract_subset(string, start_symbol, end_symbol):
-#         start_index = string.find(start_symbol)
-#         end_index = string.find(end_symbol, start_index + len(start_symbol))  # Start search after start_symbol
-#         if start_index != -1 and end_index != -1:
-#             return string[start_index-1 + len(start_symbol):end_index+1]
-#         else:
-#             return None
-
-#     df['participants_lstd'] = [list() for x in range(len(df.index))] #create empty col of lists
-#     for index, row in df.iterrows():
-#         participant_num = '{' # use parantheses to count participants in incident
-#         count = df.loc[index, 'participants'].count(participant_num)
-#         print(index)
-#         for participant in range(count):
-#             sub_strg =  extract_subset(df.loc[index, 'participants'], '{', '}')
-#             df.loc[index, 'participants'] = df.loc[index, 'participants'].replace(sub_strg, '')
-#             sub_strg = sub_strg.replace('{', '', ).replace('}', '', )
-#             sub_strg = sub_strg.replace('\'', '')
-#             sub_strg = sub_strg.replace(' ', '')
-#             sub_strg = sub_strg.split(',')
-#             df.at[index, 'participants_lstd'].append(sub_strg)
-#     return df
-
-
-
-
-

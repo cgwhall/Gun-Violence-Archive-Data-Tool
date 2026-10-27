@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 current_dir = Path('gva_df_gen_300_cities.py').resolve().parent
-current_dir
 
 
 from gen_files.create_city_list import city_list

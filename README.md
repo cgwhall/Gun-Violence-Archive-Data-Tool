@@ -11,7 +11,7 @@ This repository pulls and cleans data directly from the Gun Violence Archive usi
 
 By default, datasets relate observations with data from the American Community Survey and state grades of gun laws provided by the Giffords Law Center. Final datasets also add features to raw GVA incident data based on participant and event characteristics. See Data Dictionary below and under Data Subfolder.
 
-This project is not affiliated with the Gun Violence Archives, and the repository requires a private API key and access codes to run locally (email mark@gvadata.org to request). For most recently updated end-product data files, download directly from:
+This project is not affiliated with the Gun Violence Archives, and the repository requires a private API key and access codes to run locally (email mark@gvadata.org to request). Download most recently updated end-product data files [here](https://drive.google.com/drive/folders/1BEIW6A1CKqRTDy4Anj0LAglaA3yJJ0SE?usp=sharing).
 
 # Quickstart
 Use __main__.py to under gva_gen subfolder to make data call.

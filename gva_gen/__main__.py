@@ -10,10 +10,10 @@ import requests
 from requests_oauthlib import OAuth1
 
 ### add system path to get other library directories
-current_dir = Path('__main__.py').resolve().parent
-sys.path[0] = os.path.join(os.path.abspath(''))
+current_dir = Path(__file__).resolve().parent
+sys.path[0] = str(current_dir)
 
-from gen_files.create_city_list import city_list
+from gen_files.create_city_list import create_city_list
 from gen_files.gva_api_update import call_gva_data
 from gen_files.gva_df_gen_300_cities import cities_300_gen
 from gen_files.filter_incidents import homs_only
@@ -34,10 +34,10 @@ headeroauth = OAuth1(client_key, client_secret,
                 signature_type='auth_header')
 
 # Page range to check GVA
-page_range = [*range(200,201)]
+page_range = [*range(600,601)]
 year = 2026
 
-def main(headers, headeroauth, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path='~/Desktop/test.csv'):
+def main(current_dir, headers, headeroauth, page_range=page_range, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path='~/Desktop/test.csv'):
 
     ### Group_lst and Vars of Interest
     group_lst = ['city_state','city', 'state', 'year', 'pop']
@@ -57,12 +57,14 @@ def main(headers, headeroauth, final_year = year, agg = 'city', homs='true', tim
                 'vic_adult_injured':'sum',
                 'vic_teen_injured':'sum'}
 
-    curr_df = call_gva_data(page_range=page_range)
+    curr_df = call_gva_data(current_dir, headers, headeroauth, page_range)
     print('all called')
+
+    city_list = create_city_list(current_dir)
 # conditions
     if agg == 'city':
          print('agg to city')
-         curr_df = cities_300_gen(curr_df, city_list)
+         curr_df = cities_300_gen(curr_df, city_list, current_dir)
          print('filtered to 300 cities')
     else:
         pass
@@ -89,7 +91,6 @@ def main(headers, headeroauth, final_year = year, agg = 'city', homs='true', tim
     standard_df = incid_dummy(standard_df, keys=['Assault weapon', 'Ghost gun', 'Domestic Violence','Mass Shooting', 'Hate Crime'])
     standard_df = partic_to_lst(standard_df)
     standard_df = partic_dummy(standard_df)
-    standard_df.to_csv(f'/Users/chall/Desktop/GitHub/CAP/Data/standard_300_{suffix}.csv')
     print('saving dataframe to standard before time agg')
 
 # Time aggregation level
@@ -105,29 +106,46 @@ def main(headers, headeroauth, final_year = year, agg = 'city', homs='true', tim
         standard_df = rolling(standard_df)
 
 # save to csv
+    def suffix(time, homs, agg):
+        if time == 'annual':
+            t = 'annual'
+        elif time == 'month':
+            t = 'month'
+        else:
+            t = 'incident'
+        if homs == 'true':
+            h = 'homs'
+        else:
+            h = 'all'
+        if agg == 'city':
+            a = 'city'
+        else:
+            a = 'state'
+        return f'{t}_{h}_{a}.csv'
+    suffix = suffix(time, homs, agg)
     print('saving to csv')
-    standard_df.to_csv(final_save_path, index=False)
+    standard_df.to_csv(f'{str(current_dir)}/gva_gen/final_data/standard_df_{suffix}', index=False)
 
 # Homicides Only, Annual, 300 City Filter
-main(final_year = year, agg = 'city', homs= 'true', time='annual', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom_annual.csv')
+main(current_dir, headers, headeroauth, page_range,final_year = year, agg = 'city', homs= 'true', time='annual')
 
 # Homicides Only, Monthly, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='month', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom_month.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='month')
 
 # All Incidents, Annual, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='annual', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_all_annual.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='annual')
 
 # All Incidents, monthly, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='month', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_all_monthly.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='month')
 
 # Homicides Only, States
-main(group_lst, agg_dict, final_year = year, agg = 'state', homs= 'true', time='', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/hom_all.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'state', homs= 'true', time='')
 
 # All Incidents, States
-main(group_lst, agg_dict, final_year = year, agg = 'state', homs= '', time='', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/all_monthly.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'state', homs= '', time='')
 
 # Homicides Only, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_hom.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='')
 
 # All Incidents, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='', final_save_path = '/Users/chall/Desktop/GitHub/CAP/Data/Final Data Files/300_cities_all.csv')
+main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='')

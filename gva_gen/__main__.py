@@ -37,7 +37,7 @@ headeroauth = OAuth1(client_key, client_secret,
 page_range = [*range(600,601)]
 year = 2026
 
-def main(current_dir, headers, headeroauth, page_range=page_range, final_year = year, agg = 'city', homs='true', time = 'annual', final_save_path='~/Desktop/test.csv'):
+def main(current_dir, headers, headeroauth, page_range=page_range, final_year = year, agg = 'city', homs='true', time = 'annual'):
 
     ### Group_lst and Vars of Interest
     group_lst = ['city_state','city', 'state', 'year', 'pop']

@@ -9,9 +9,19 @@ Created on Tue Jun  6 13:33:11 2023
 import requests
 from bs4 import BeautifulSoup as bs
 
-year_range = [*range(2015,2023)]
+def scrape_giffords(current_dir):
 
-def scrape_giffords(year_range, current_year):
+    url = 'https://giffords.org/lawcenter/resources/scorecard/'
+    response = requests.get(url)
+    soup = bs(response.content, "html.parser")
+    prev_scorecards = soup.find(id = 'prev-scorecards')
+    li = prev_scorecards.find_all('li')
+    prev_yr = int([item.text.strip() for item in li][0])
+    current_yr = prev_yr+1
+
+    year_range = [*range(2015, prev_yr+1)]
+
+
     def scrape_one(url, year):
         response = requests.get(url)
         soup = bs(response.content, "html.parser")
@@ -35,8 +45,14 @@ def scrape_giffords(year_range, current_year):
         head=head[1:4]
         return head
 
-    url = 'https://giffords.org/lawcenter/resources/scorecard/'
-    rows = scrape_one(url, current_year)
+    def save_to_csv(data, path):
+    # Join and save to github folder
+        lines = [','.join(line) for line in data]
+        doc = '\n'.join(lines)
+        with open(path, 'w') as ofile:
+            ofile.write(doc)
+    
+    rows = scrape_one(url, current_yr)
     head = scrape_head(url)
     rows.insert(0, head)
 
@@ -51,15 +67,5 @@ def scrape_giffords(year_range, current_year):
             new_year = scrape_one(url, year)
             for row in new_year:
                 rows.append(row)
+    save_to_csv(rows, f'{str(current_dir)}/gva_gen/data_components/giffords_score.csv')
     return rows
-
-giffords = scrape_giffords(year_range, current_year=2023)
-
-def save_to_csv(data, path):
-    # Join and save to github folder
-    lines = [','.join(line) for line in data]
-    doc = '\n'.join(lines)
-    with open(path, 'w') as ofile:
-        ofile.write(doc)
-        
-save_to_csv(giffords, '/Users/chall/Desktop/GitHub/CAP/Data/gva_gen/data_components/giffords_score.csv')

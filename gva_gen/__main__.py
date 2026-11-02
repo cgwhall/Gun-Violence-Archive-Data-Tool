@@ -21,6 +21,7 @@ from gen_files.merge_funcs import *
 from gen_files.incident_handling import *
 from gen_files.time_aggs import *
 from gen_files.rolling_calc import rolling
+from gen_files.giffords_score_scrape import scrape_giffords
 
 ### NEED PRIVATE API KEY AND ACCESS TOKEN FROM GVA TO RUN THIS SCRIPT ###
 
@@ -105,6 +106,11 @@ def main(current_dir, headers, headeroauth, page_range=page_range, final_year = 
         print('add rolling')
         standard_df = rolling(standard_df)
 
+# Add Giffords
+    giffords = scrape_giffords(current_dir)
+    standard_df = pd.merge(standard_df, giffords, how='left', on=['year','state'])
+    print('added giffords score')
+
 # save to csv
     def suffix(time, homs, agg):
         if time == 'annual':
@@ -130,22 +136,22 @@ def main(current_dir, headers, headeroauth, page_range=page_range, final_year = 
 main(current_dir, headers, headeroauth, page_range,final_year = year, agg = 'city', homs= 'true', time='annual')
 
 # Homicides Only, Monthly, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='month')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= 'true', time='month')
 
 # All Incidents, Annual, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='annual')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='annual')
 
 # All Incidents, monthly, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='month')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='month')
 
 # Homicides Only, States
-main(group_lst, agg_dict, final_year = year, agg = 'state', homs= 'true', time='')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'state', homs= 'true', time='')
 
 # All Incidents, States
-main(group_lst, agg_dict, final_year = year, agg = 'state', homs= '', time='')
+main(current_dir, headers, headeroauth, page_range , final_year = year, agg = 'state', homs= '', time='')
 
 # Homicides Only, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= 'true', time='')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= 'true', time='')
 
 # All Incidents, 300 City Filter
-main(group_lst, agg_dict, final_year = year, agg = 'city', homs= '', time='')
+main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='')

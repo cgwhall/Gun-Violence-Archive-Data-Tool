@@ -7,8 +7,7 @@ import requests
 from requests_oauthlib import OAuth1
 from pathlib import Path
 
-def call_gva_data(current_dir, headers, headeroauth, page_range):
-    print(page_range)
+def call_gva_data(current_dir, headers, headeroauth):
     print('starting call')
 
     # Call old Dataframe and make list
@@ -32,16 +31,21 @@ def call_gva_data(current_dir, headers, headeroauth, page_range):
         return wdf
     
     complete_df = pd.DataFrame()
-    for page in page_range:
+
+    protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
+    r = requests.get(url=protected_url, headers=headers, auth=headeroauth)
+    json_data = r.json()
+    last_page = int(json_data['total_pages'])
+
+    for page in range(0, last_page):
 
         print('requesting page: '+str(page))
-        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
+        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
         r = requests.get(url=protected_url, headers=headers, auth=headeroauth)
         time.sleep(4)
         json_data = r.json()
         df = pd.DataFrame(json_data)
         print(df.head())
-        print('here')
         fixed_df = gva_df_convert(df)
         print('merging page '+str(page)+' with all data')
         complete_df = pd.concat([complete_df, fixed_df], ignore_index=True)

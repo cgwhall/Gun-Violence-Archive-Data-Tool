@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 import numpy as np
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
 import time
 import requests
@@ -34,11 +35,9 @@ headeroauth = OAuth1(client_key, client_secret,
                 access_token, token_secret,
                 signature_type='auth_header')
 
-# Page range to check GVA
-page_range = [*range(600,601)]
-year = 2026
+def main(current_dir, headers, headeroauth, agg = 'city', homs='true', time = 'annual'):
 
-def main(current_dir, headers, headeroauth, page_range=page_range, final_year = year, agg = 'city', homs='true', time = 'annual'):
+    final_year = datetime.now().year
 
     ### Group_lst and Vars of Interest
     group_lst = ['city_state','city', 'state', 'year', 'pop']
@@ -58,7 +57,7 @@ def main(current_dir, headers, headeroauth, page_range=page_range, final_year = 
                 'vic_adult_injured':'sum',
                 'vic_teen_injured':'sum'}
 
-    curr_df = call_gva_data(current_dir, headers, headeroauth, page_range)
+    curr_df = call_gva_data(current_dir, headers, headeroauth)
     print('all called')
 
     city_list = create_city_list(current_dir)
@@ -133,25 +132,25 @@ def main(current_dir, headers, headeroauth, page_range=page_range, final_year = 
     standard_df.to_csv(f'{str(current_dir)}/gva_gen/final_data/standard_df_{suffix}', index=False)
 
 # Homicides Only, Annual, 300 City Filter
-main(current_dir, headers, headeroauth, page_range,final_year = year, agg = 'city', homs= 'true', time='annual')
+main(current_dir, headers, headeroauth, agg = 'city', homs= 'true', time='annual')
 
 # Homicides Only, Monthly, 300 City Filter
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= 'true', time='month')
+main(current_dir, headers, headeroauth, agg = 'city', homs= 'true', time='month')
 
 # All Incidents, Annual, 300 City Filter
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='annual')
+main(current_dir, headers, headeroauth, agg = 'city', homs= '', time='annual')
 
 # All Incidents, monthly, 300 City Filter
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='month')
+main(current_dir, headers, headeroauth, agg = 'city', homs= '', time='month')
 
 # Homicides Only, States
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'state', homs= 'true', time='')
+main(current_dir, headers, headeroauth, agg = 'state', homs= 'true', time='')
 
 # All Incidents, States
-main(current_dir, headers, headeroauth, page_range , final_year = year, agg = 'state', homs= '', time='')
+main(current_dir, headers, headeroauth, agg = 'state', homs= '', time='')
 
 # Homicides Only, 300 City Filter
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= 'true', time='')
+main(current_dir, headers, headeroauth, agg = 'city', homs= 'true', time='')
 
 # All Incidents, 300 City Filter
-main(current_dir, headers, headeroauth, page_range, final_year = year, agg = 'city', homs= '', time='')
+main(current_dir, headers, headeroauth, agg = 'city', homs= '', time='')

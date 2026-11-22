@@ -23,7 +23,7 @@ def annual_agg(df, group_lst, var_dict):
 
 
 def monthly_agg(df, final_year, group_lst, var_dict):
-    df['incident_date'] = pd.to_datetime(df['incident_date'], format='mixed')
+    df['incident_date'] = pd.to_datetime(df['incident_date'], format="%m/%d/%y %H:%M", errors="coerce")
     df['year'] = df['incident_date'].dt.year
     df['month'] = df['incident_date'].dt.month
     df['city_state'] = df['city']+', '+ df['state']

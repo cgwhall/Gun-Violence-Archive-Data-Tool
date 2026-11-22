@@ -42,6 +42,7 @@ def scrape_giffords(current_dir):
         head = [item.replace(' ','') for item in head]
         head = [item.replace('\n','') for item in head]
         head.insert(3, 'year')
+        head[1] = 'state'
         head=head[1:4]
         return head
 
@@ -68,4 +69,3 @@ def scrape_giffords(current_dir):
             for row in new_year:
                 rows.append(row)
     save_to_csv(rows, f'{str(current_dir)}/gva_gen/data_components/giffords_score.csv')
-    return rows

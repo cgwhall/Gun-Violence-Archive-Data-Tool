@@ -3,14 +3,15 @@
 
 import os
 import sys
-### add system path to get other library directories
-sys.path.append('Data/gva_gen/gen_files/')
-
+from pathlib import Path
 import pandas as pd
-import sys
 import requests
-from create_city_list import city_list
-# city_list
+
+dir = Path(__file__).resolve().parent
+sys.path[1] = str(dir)
+from gen_files.create_city_list import create_city_list
+
+city_list = create_city_list(f'{current_dir.parent}')
 
 # Census API places to search from
 places_orig = [["NAME","B01001_001E","state","place"],
@@ -685,9 +686,9 @@ place_list[:10]
 
 ####### TESTING
 
-r = requests.get(f'https://api.census.gov/data/2022/acs/acs5?get=NAME,{",".join(str(i) for i in acs_vars_5yrs)}&for=place:01000&in=state:39&key=9d770ba2775550d6234ed8c12dd756762be8b9f5').json()
+r = requests.get(f'https://api.census.gov/data/2016/acs/acs5?get=NAME,{",".join(str(i) for i in acs_vars_5yrs)}&for=place:01000&in=state:39&key=9d770ba2775550d6234ed8c12dd756762be8b9f5').json()
 curr_df = pd.DataFrame(columns = r[0], data = r[1:])
-curr_df
+curr_df.head()
 
 #########################
 ### ONE YEAR: ACS5 (2022)
@@ -695,7 +696,7 @@ curr_df
 
 def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
     print('starting call')
-    response = requests.get(f'https://api.census.gov/data/2022/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
+    response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
     curr_df = pd.DataFrame(columns = response[0], data = response[1:])
     places_list = places_list[1:]
     print('created df structure')
@@ -721,6 +722,39 @@ def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, key='9
     final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
     final_df = final_df.drop('NAME', axis=1)
     return final_df
+
+
+def gen_cities_acs_df(places_list, var_list, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
+    print('starting call')
+    response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
+    curr_df = pd.DataFrame(columns = response[0], data = response[1:])
+    places_list = places_list[1:]
+    print('created df structure')
+
+    for year in [*range(2015, 2024)]:
+        for place in places_list:
+            print(place)
+            response = requests.get(f'https://api.census.gov/data/{year}/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
+            add_df = pd.DataFrame(columns = response[0], data = response[1:])
+            add_df['year'] = year
+            curr_df = pd.concat([curr_df, add_df], ignore_index=True)
+
+        print('df created')
+      #  curr_df = curr_df.rename(columns=var_list)
+
+        #  def clean_cities_acs(df, exception_dict, suffix_list):
+        #     df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
+        #     for exception in exception_dict.keys():
+        #         df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
+        #     for suffix in suffix_list:
+        #         df['city'] = df['city'].str.removesuffix(suffix)
+        #         df['city'] = df['city'].str.strip()
+        #     return df
+
+        # final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
+       #  final_df = final_df.drop('NAME', axis=1)
+    return curr_df
+
 
 
 acs_vars_5yrs = {'B01001_001E': 'Estimate!!Total:Population',
@@ -761,9 +795,9 @@ city_exceptions = {'Boise City city':'Boise',
                    'Augusta-Richmond County consolidated government (balance)': 'Augusta',
                    'San Buenaventura (Ventura)': 'Ventura'}
 
-cities_acs = gen_cities_acs_df(place_list, acs_vars_5yrs, city_exceptions, suffixes, key='9d770ba2775550d6234ed8c12dd756762be8b9f5')
+cities_acs = gen_cities_acs_df(place_list, acs_vars_5yrs, key='9d770ba2775550d6234ed8c12dd756762be8b9f5')
 
-cities_acs.to_csv('Data/gva_gen/data_components/cities_acs.csv', index=False)
+cities_acs.to_csv('~/Desktop/cities_acs.csv', index=False)
 
 
 

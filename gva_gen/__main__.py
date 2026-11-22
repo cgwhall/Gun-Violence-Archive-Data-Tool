@@ -11,29 +11,30 @@ import requests
 from requests_oauthlib import OAuth1
 
 ### add system path to get other library directories
-current_dir = Path(__file__).resolve().parent
+current_dir = Path.cwd().resolve()
 sys.path[0] = str(current_dir)
 
-from gen_files.create_city_list import create_city_list
-from gen_files.gva_api_update import call_gva_data
-from gen_files.gva_df_gen_300_cities import cities_300_gen
-from gen_files.filter_incidents import homs_only
-from gen_files.merge_funcs import *
-from gen_files.incident_handling import *
-from gen_files.time_aggs import *
-from gen_files.rolling_calc import rolling
-from gen_files.giffords_score_scrape import scrape_giffords
+from gva_gen.gen_files.create_city_list import create_city_list
+from gva_gen.gen_files.gva_api_update import call_gva_data
+from gva_gen.gen_files.gva_df_gen_300_cities import cities_300_gen
+from gva_gen.gen_files.filter_incidents import homs_only
+from gva_gen.gen_files.merge_funcs import *
+from gva_gen.gen_files.incident_handling import *
+from gva_gen.gen_files.time_aggs import *
+from gva_gen.gen_files.rolling_calc import rolling
+from gva_gen.gen_files.giffords_score_scrape import scrape_giffords
 
 ### NEED PRIVATE API KEY AND ACCESS TOKEN FROM GVA TO RUN THIS SCRIPT ###
 
-client_key = ''
-client_secret=''
-access_token = ''
-token_secret = ''
-headers = {'User-Agent':''}
+# API ACCESS
+client_key = 'pCSMysBUwKVnHgmyrTXHCx52eomMxsaD'
+client_secret='mkXg9wSuWsVXpo96kccsJiN9vMByYcot'
+access_token = 'CXYEuJpu6eCYHNuzKYCCDsTWbiFia5q9'
+token_secret = 'uG6pxUsRoJo5BGqSkQJU2KmH76dRgcUL'
+headers = {'User-Agent':'Center for American Progress'}
 headeroauth = OAuth1(client_key, client_secret,
-                access_token, token_secret,
-                signature_type='auth_header')
+                    access_token, token_secret,
+                    signature_type='auth_header')
 
 def main(current_dir, headers, headeroauth, agg = 'city', homs='true', time = 'annual'):
 

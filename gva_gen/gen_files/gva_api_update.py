@@ -40,13 +40,14 @@ def call_gva_data(current_dir, headers, headeroauth):
     for page in range(0, last_page):
 
         print('requesting page: '+str(page))
-        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
+        protected_url = f'https://api.gunviolencearchive.org/api/incidents.json?page={page}&pagesize=500&filters[IncidentDate][method]=isyear&filters[IncidentDate][field][date-year]'
         r = requests.get(url=protected_url, headers=headers, auth=headeroauth)
         time.sleep(4)
         json_data = r.json()
         df = pd.DataFrame(json_data)
         print(df.head())
         fixed_df = gva_df_convert(df)
+        print(fixed_df['incident_date'].head())
         print('merging page '+str(page)+' with all data')
         complete_df = pd.concat([complete_df, fixed_df], ignore_index=True)
 

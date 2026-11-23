@@ -27,11 +27,11 @@ from gva_gen.gen_files.giffords_score_scrape import scrape_giffords
 ### NEED PRIVATE API KEY AND ACCESS TOKEN FROM GVA TO RUN THIS SCRIPT ###
 
 # API ACCESS
-client_key = 'pCSMysBUwKVnHgmyrTXHCx52eomMxsaD'
-client_secret='mkXg9wSuWsVXpo96kccsJiN9vMByYcot'
-access_token = 'CXYEuJpu6eCYHNuzKYCCDsTWbiFia5q9'
-token_secret = 'uG6pxUsRoJo5BGqSkQJU2KmH76dRgcUL'
-headers = {'User-Agent':'Center for American Progress'}
+client_key = ''
+client_secret=''
+access_token = ''
+token_secret = ''
+headers = {'User-Agent':''}
 headeroauth = OAuth1(client_key, client_secret,
                     access_token, token_secret,
                     signature_type='auth_header')

@@ -7,8 +7,9 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-dir = Path(__file__).resolve().parent
-sys.path[1] = str(dir)
+### add system path to get other library directories
+current_dir = Path.cwd().resolve()
+sys.path[0] = str(current_dir)
 from gen_files.create_city_list import create_city_list
 
 city_list = create_city_list(f'{current_dir.parent}')
@@ -732,8 +733,8 @@ def gen_cities_acs_df(places_list, var_list, key='9d770ba2775550d6234ed8c12dd756
     print('created df structure')
 
     for year in [*range(2015, 2024)]:
+        print(f'getting data for {year}')
         for place in places_list:
-            print(place)
             response = requests.get(f'https://api.census.gov/data/{year}/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
             add_df = pd.DataFrame(columns = response[0], data = response[1:])
             add_df['year'] = year
@@ -799,6 +800,37 @@ cities_acs = gen_cities_acs_df(place_list, acs_vars_5yrs, key='9d770ba2775550d62
 
 cities_acs.to_csv('~/Desktop/cities_acs.csv', index=False)
 
+standard_df = pd.read_csv('/Users/chandlerhall/Desktop/Github/Gun Violence Archive Data Tool/final_data/standard_df_month_all_city.csv.csv')
 
 
+standard_df['year'] = standard_df['year'].astype(int)
+final_df['year'] = final_df['year'].astype(int)
+standard_df = standard_df.merge(final_df, how='left', left_on=['city', 'state', 'year'], right_on=['city', 'state', 'year'])
 
+
+acs_vars_5yrs['NAME'] = 'city_state'
+curr_df = cities_acs.rename(columns=acs_vars_5yrs)
+
+
+suffixes = ['city', 'municipality']
+city_exceptions = {'Boise City city':'Boise',
+                   'Urban Honolulu CDP':'Honolulu',
+                   'Indianapolis city (balance)':'Indianapolis',
+                   'Lexington-Fayette urban county':'Lexington',
+                   'Louisville/Jefferson County metro government (balance)':'Louisville',
+                   'Nashville-Davidson metropolitan government (balance)':'Nashville',
+                   'Athens-Clarke County unified government (balance)': 'Athens',
+                   'Augusta-Richmond County consolidated government (balance)': 'Augusta',
+                   'San Buenaventura (Ventura)': 'Ventura'}
+
+def clean_cities_acs(df, exception_dict, suffix_list):
+    df[['city', 'state']] = df['city_state'].str.split(',', expand=True)
+    for exception in exception_dict.keys():
+        df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
+    for suffix in suffix_list:
+        df['city'] = df['city'].str.removesuffix(suffix)
+        df['city'] = df['city'].str.strip()
+    return df
+
+final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
+final_df = final_df.drop('NAME', axis=1)

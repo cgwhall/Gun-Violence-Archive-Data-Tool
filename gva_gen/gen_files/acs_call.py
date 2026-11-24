@@ -8,11 +8,11 @@ import pandas as pd
 import requests
 
 ### add system path to get other library directories
-current_dir = Path.cwd().parent.resolve()
+current_dir = Path.cwd().resolve()
 sys.path[0] = str(current_dir)
-from gen_files.create_city_list import create_city_list
+from gva_gen.gen_files.create_city_list import create_city_list
 
-city_list = create_city_list(f'{current_dir.parent}')
+city_list = create_city_list(current_dir)
 
 # Census API places to search from
 places_orig = [["NAME","B01001_001E","state","place"],
@@ -689,69 +689,69 @@ place_list[:10]
 ### ONE YEAR: ACS5 (2022)
 #########################
 
-def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
-    print('starting call')
-    response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
-    curr_df = pd.DataFrame(columns = response[0], data = response[1:])
-    places_list = places_list[1:]
-    print('created df structure')
+# def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
+#     print('starting call')
+#     response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
+#     curr_df = pd.DataFrame(columns = response[0], data = response[1:])
+#     places_list = places_list[1:]
+#     print('created df structure')
 
-    for place in places_list:
-        print(place)
-        response = requests.get(f'https://api.census.gov/data/2022/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
-        add_df = pd.DataFrame(columns = response[0], data = response[1:])
-        curr_df = pd.concat([curr_df, add_df], ignore_index=True)
+#     for place in places_list:
+#         print(place)
+#         response = requests.get(f'https://api.census.gov/data/2022/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
+#         add_df = pd.DataFrame(columns = response[0], data = response[1:])
+#         curr_df = pd.concat([curr_df, add_df], ignore_index=True)
 
-    print('df created')
-    curr_df = curr_df.rename(columns=var_list)
+#     print('df created')
+#     curr_df = curr_df.rename(columns=var_list)
 
-    def clean_cities_acs(df, exception_dict, suffix_list):
-        df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
-        for exception in exception_dict.keys():
-            df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
-        for suffix in suffix_list:
-            df['city'] = df['city'].str.removesuffix(suffix)
-            df['city'] = df['city'].str.strip()
-        return df
+#     def clean_cities_acs(df, exception_dict, suffix_list):
+#         df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
+#         for exception in exception_dict.keys():
+#             df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
+#         for suffix in suffix_list:
+#             df['city'] = df['city'].str.removesuffix(suffix)
+#             df['city'] = df['city'].str.strip()
+#         return df
 
-    final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
-    final_df = final_df.drop('NAME', axis=1)
-    return final_df
+#     final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
+#     final_df = final_df.drop('NAME', axis=1)
+#     return final_df
 
 #########################
 ### MULTIPLE YEARS: ACS5
 #########################
 
-def gen_cities_acs_df(places_list, var_list, final_year = 2025, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
-    print('starting call')
-    response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
-    curr_df = pd.DataFrame(columns = response[0])
-    places_list = places_list[1:]
-    print('created df structure')
+# def gen_cities_acs_df(places_list, var_list, final_year = 2025, key='9d770ba2775550d6234ed8c12dd756762be8b9f5'):
+#     print('starting call')
+#     response = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{places_list[0][3]}&in=state:{places_list[0][2]}&key={key}').json()
+#     curr_df = pd.DataFrame(columns = response[0])
+#     places_list = places_list[1:]
+#     print('created df structure')
 
-    for year in [*range(2015, final_year)]:
-        print(f'getting data for {year}')
-        for place in places_list:
-            response = requests.get(f'https://api.census.gov/data/{year}/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
-            add_df = pd.DataFrame(columns = response[0], data = response[1:])
-            add_df['year'] = year
-            curr_df = pd.concat([curr_df, add_df], ignore_index=True)
+#     for year in [*range(2015, final_year)]:
+#         print(f'getting data for {year}')
+#         for place in places_list:
+#             response = requests.get(f'https://api.census.gov/data/{year}/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
+#             add_df = pd.DataFrame(columns = response[0], data = response[1:])
+#             add_df['year'] = year
+#             curr_df = pd.concat([curr_df, add_df], ignore_index=True)
 
-        print('df created')
-      #  curr_df = curr_df.rename(columns=var_list)
+#         print('df created')
+#       #  curr_df = curr_df.rename(columns=var_list)
 
-        #  def clean_cities_acs(df, exception_dict, suffix_list):
-        #     df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
-        #     for exception in exception_dict.keys():
-        #         df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
-        #     for suffix in suffix_list:
-        #         df['city'] = df['city'].str.removesuffix(suffix)
-        #         df['city'] = df['city'].str.strip()
-        #     return df
+#         #  def clean_cities_acs(df, exception_dict, suffix_list):
+#         #     df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
+#         #     for exception in exception_dict.keys():
+#         #         df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
+#         #     for suffix in suffix_list:
+#         #         df['city'] = df['city'].str.removesuffix(suffix)
+#         #         df['city'] = df['city'].str.strip()
+#         #     return df
 
-        # final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
-       #  final_df = final_df.drop('NAME', axis=1)
-    return curr_df
+#         # final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
+#        #  final_df = final_df.drop('NAME', axis=1)
+#     return curr_df
 
 
 
@@ -796,38 +796,10 @@ city_exceptions = {'Boise City city':'Boise',
 
 ####### TESTING
 
-r = requests.get(f'https://api.census.gov/data/2015/acs/acs5?get=NAME,{",".join(str(i) for i in acs_vars_5yrs)}&for=place:01000&in=state:39&key=9d770ba2775550d6234ed8c12dd756762be8b9f5').json()
+r = requests.get(f'https://api.census.gov/data/2019/acs/acs5?get=NAME,{",".join(str(i) for i in acs_vars_5yrs)}&for=place:01000&in=state:39&key=9d770ba2775550d6234ed8c12dd756762be8b9f5').json()
 curr_df = pd.DataFrame(columns = r[0])
 curr_df.head()
 
-
-cities_acs = gen_cities_acs_df(place_list, acs_vars_5yrs, exception_dict=city_exceptions, suffix_list=suffixes, final_year = 2016, key='9d770ba2775550d6234ed8c12dd756762be8b9f5')
-cities_acs.to_csv('~/Desktop/cities_acs.csv', index=False)
-
-standard_df = pd.read_csv('/Users/chall/Library/CloudStorage/OneDrive-CenterForAmericanProgress/Desktop/GitHub/CAP/Data/standard_300_homs.csv')
-
-
-standard_df['year'] = standard_df['year'].astype(int)
-cities_acs['year'] = cities_acs['year'].astype(int)
-standard_df = standard_df.merge(cities_acs, how='left', left_on=['city', 'state', 'year'], right_on=['city', 'state', 'year'])
-standard_df.to_csv('~/Desktop/standard_300_homs_acs.csv', index=False)
-
-
-acs_vars_5yrs['NAME'] = 'city_state'
-
-
-curr_df = cities_acs.rename(columns=acs_vars_5yrs)
-
-suffixes = ['city', 'municipality']
-city_exceptions = {'Boise City city':'Boise',
-                   'Urban Honolulu CDP':'Honolulu',
-                   'Indianapolis city (balance)':'Indianapolis',
-                   'Lexington-Fayette urban county':'Lexington',
-                   'Louisville/Jefferson County metro government (balance)':'Louisville',
-                   'Nashville-Davidson metropolitan government (balance)':'Nashville',
-                   'Athens-Clarke County unified government (balance)': 'Athens',
-                   'Augusta-Richmond County consolidated government (balance)': 'Augusta',
-                   'San Buenaventura (Ventura)': 'Ventura'}
 
 def clean_cities_acs(df, exception_dict, suffix_list):
     df[['city', 'state']] = df['city_state'].str.split(',', expand=True)
@@ -850,7 +822,7 @@ def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, final_
     places_list = places_list[1:]
     print('created df structure')
 
-    for year in [*range(2015, final_year)]:
+    for year in [*range(2019, final_year)]:
         print(f'getting data for {year}')
         for place in places_list:
             response = requests.get(f'https://api.census.gov/data/{year}/acs/acs5?get=NAME,{",".join(str(i) for i in var_list)}&for=place:{place[3]}&in=state:{place[2]}&key={key}').json()
@@ -864,12 +836,12 @@ def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, final_
     def clean_cities_acs(df, exception_dict, suffix_list):
         df[['city', 'state']] = df['NAME'].str.split(',', expand=True)
         df['state'] = df['state'].str.strip()
+        df['city'] = df['city'].str.strip()
         for exception in exception_dict.keys():
             print(f'cleaning exception: {exception}')
             df.loc[df['city'] == exception, 'city'] = exception_dict[exception]
         for suffix in suffix_list:
-            df['city'] = df['city'].str.removesuffix(suffix)
-            df['city'] = df['city'].str.strip()
+            df['city'] = df['city'].str.removesuffix(suffix).str.strip()
             df['city'] = df['city'].str.replace('St.', 'Saint')
         df['NAME'] = df['city'] + ', ' + df['state']
         df = df.rename(columns={'NAME': 'city_state'})
@@ -877,3 +849,33 @@ def gen_cities_acs_df(places_list, var_list, exception_dict, suffix_list, final_
 
     final_df = clean_cities_acs(curr_df, exception_dict, suffix_list)
     return final_df
+
+suffixes = ['city', 'municipality']
+city_exceptions = {'Boise City city':'Boise',
+                   'Urban Honolulu CDP':'Honolulu',
+                   'Indianapolis city (balance)':'Indianapolis',
+                   'Lexington-Fayette urban county':'Lexington',
+                   'Louisville/Jefferson County metro government (balance)':'Louisville',
+                   'Nashville-Davidson metropolitan government (balance)':'Nashville',
+                   'Athens-Clarke County unified government (balance)': 'Athens',
+                   'Augusta-Richmond County consolidated government (balance)': 'Augusta',
+                   'San Buenaventura (Ventura)': 'Ventura'}
+
+
+cities_acs['city'] = cities_acs['city'].str.strip()
+cities_acs['state'] = cities_acs['state'].str.strip()
+cities_acs['city_state'] = cities_acs['city'] + ', ' + cities_acs['state']
+cities_acs.to_csv('~/Desktop/cities_acs.csv', index=False)
+
+cities_acs = gen_cities_acs_df(place_list, acs_vars_5yrs, exception_dict=city_exceptions, suffix_list=suffixes, final_year = 2025, key='9d770ba2775550d6234ed8c12dd756762be8b9f5')
+cities_acs.to_csv('~/Desktop/cities_acs.csv', index=False)
+
+standard_df = pd.read_csv('/Users/chall/Library/CloudStorage/OneDrive-CenterForAmericanProgress/Desktop/GitHub/CAP/Data/standard_300_homs.csv')
+
+
+standard_df['year'] = standard_df['year'].astype(int)
+cities_acs['year'] = cities_acs['year'].astype(int)
+standard_df = standard_df.merge(cities_acs, how='left', left_on=['city', 'state', 'year'], right_on=['city', 'state', 'year'])
+standard_df.to_csv('~/Desktop/standard_300_homs_acs.csv', index=False)
+
+

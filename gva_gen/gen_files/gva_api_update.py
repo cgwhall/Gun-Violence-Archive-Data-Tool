@@ -16,7 +16,6 @@ def call_gva_data(current_dir, headers, headeroauth):
         gva_ex = pd.read_csv(file_path)
         print("Loading existing gva_all.csv")
         gva_inc = list(gva_ex['incident_id'].astype(str).str.rstrip('.0'))
-        print(gva_inc[:10])
         gva_inc = [str(item) for item in gva_inc]
     else:
         gva_inc = []
@@ -45,7 +44,6 @@ def call_gva_data(current_dir, headers, headeroauth):
         time.sleep(4)
         json_data = r.json()
         df = pd.DataFrame(json_data)
-        print(df.head())
         fixed_df = gva_df_convert(df)
         print(fixed_df['incident_date'].head())
         print('merging page '+str(page)+' with all data')
@@ -56,7 +54,7 @@ def call_gva_data(current_dir, headers, headeroauth):
         if any(id in inc_lst for id in gva_inc):
             print('Match found! Breaking the loop.')
             break
-    print('merging new data to old dataframe')
+    print('merging new data to existing dataframe')
     complete_df['incident_date'] = pd.to_datetime(complete_df['incident_date'])
     complete_df['year'] = complete_df['incident_date'].dt.year
 

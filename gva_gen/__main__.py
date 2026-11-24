@@ -14,6 +14,7 @@ from requests_oauthlib import OAuth1
 current_dir = Path.cwd().resolve()
 sys.path[0] = str(current_dir)
 
+
 from gva_gen.gen_files.create_city_list import create_city_list
 from gva_gen.gen_files.gva_api_update import call_gva_data
 from gva_gen.gen_files.gva_df_gen_300_cities import cities_300_gen
@@ -23,6 +24,7 @@ from gva_gen.gen_files.incident_handling import *
 from gva_gen.gen_files.time_aggs import *
 from gva_gen.gen_files.rolling_calc import rolling
 from gva_gen.gen_files.giffords_score_scrape import scrape_giffords
+from gva_gen.gen_files.acs_call import clean_places, gen_cities_acs_df
 
 ### NEED PRIVATE API KEY AND ACCESS TOKEN FROM GVA TO RUN THIS SCRIPT ###
 
@@ -61,7 +63,7 @@ def main(current_dir, headers, headeroauth, agg = 'city', homs='true', time = 'a
     curr_df = call_gva_data(current_dir, headers, headeroauth)
     print('all called')
 
-    city_list = create_city_list(current_dir)
+    city_list = create_city_list(sys.path[0])
 # conditions
     if agg == 'city':
          print('agg to city')
@@ -111,6 +113,17 @@ def main(current_dir, headers, headeroauth, agg = 'city', homs='true', time = 'a
     standard_df = pd.merge(standard_df, giffords, how='left', on=['year','state'])
     print('added giffords score')
 
+# Add ACS
+    if agg == 'city':
+        place_list = clean_places(city_list)
+        acs = gen_cities_acs_df(place_list, key='9d770ba2775550d6234ed8c12dd756762be8b9f5')
+        standard_df['year'] = standard_df['year'].astype(int)
+        acs['year'] = acs['year'].astype(int)
+        standard_df = standard_df.merge(acs, how='left', on=['city', 'state', 'city_state','year'])
+        print('added ACS data')
+    else:
+        pass
+
 # save to csv
     def suffix(time, homs, agg):
         if time == 'annual':
@@ -130,7 +143,7 @@ def main(current_dir, headers, headeroauth, agg = 'city', homs='true', time = 'a
         return f'{t}_{h}_{a}.csv'
     suffix = suffix(time, homs, agg)
     print('saving to csv')
-    standard_df.to_csv(f'{str(current_dir)}/gva_gen/final_data/standard_df_{suffix}', index=False)
+    standard_df.to_csv(f'{str(current_dir)}final_data/standard_df_{suffix}.csv', index=False)
 
 # Homicides Only, Annual, 300 City Filter
 main(current_dir, headers, headeroauth, agg = 'city', homs= 'true', time='annual')

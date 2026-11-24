@@ -1,6 +1,6 @@
 # Gun Violence Archive (GVA) Data Pull & Tool
 ### Chandler Hall
-**Last updated October 2026
+**Last updated November 2026
 
 # About
 This repository pulls and cleans data directly from the Gun Violence Archive using a private API, and merges gun violence incident data with community-level social and economic indicators. Use this repository to pull gun violence incident data into analysis-ready datasets, with arguments to aggregate by:
